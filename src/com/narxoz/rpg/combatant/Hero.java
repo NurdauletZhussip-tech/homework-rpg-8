@@ -1,11 +1,7 @@
 package com.narxoz.rpg.combatant;
+import com.narxoz.rpg.state.HeroState;
+import com.narxoz.rpg.state.NormalState;
 
-/**
- * Represents a player-controlled hero participating in the tower climb.
- *
- * Students: you may extend this class as needed for your implementation.
- * You will need to add a HeroState field and related methods.
- */
 public class Hero {
 
     private final String name;
@@ -13,13 +9,15 @@ public class Hero {
     private final int maxHp;
     private final int attackPower;
     private final int defense;
+    private HeroState state;
 
-    public Hero(String name, int hp, int attackPower, int defense) {
+    public Hero(String name, int hp, int attackPower, int defense ,HeroState initialState) {
         this.name = name;
         this.hp = hp;
         this.maxHp = hp;
         this.attackPower = attackPower;
         this.defense = defense;
+        this.state = initialState;
     }
 
     public String getName()        { return name; }
@@ -28,6 +26,8 @@ public class Hero {
     public int getAttackPower()    { return attackPower; }
     public int getDefense()        { return defense; }
     public boolean isAlive()       { return hp > 0; }
+    public HeroState getState()    { return state; }
+    public void setState(HeroState state) {this.state = state;System.out.println("(STATE) " + name + " is " + state.getName());}
 
     /**
      * Reduces this hero's HP by the given amount, clamped to zero.
@@ -46,4 +46,24 @@ public class Hero {
     public void heal(int amount) {
         hp = Math.min(maxHp, hp + amount);
     }
+    public int getEffectiveDamage() {
+        return state.modifyOutgoingDamage(attackPower);
+    }
+
+    public int getEffectiveDefense() {
+        return state.modifyIncomingDamage(defense);
+    }
+
+    public void onTurnStart() {
+        state.onTurnStart(this);
+    }
+
+    public void onTurnEnd() {
+        state.onTurnEnd(this);
+    }
+
+    public boolean canAct() {
+        return state.canAct();
+    }
 }
+
